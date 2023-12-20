@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
 import time
-import re
-import mysql.connector
 import pymysql
+import os
+from dotenv import load_dotenv
 
 class newsScrap :
     
@@ -19,8 +19,6 @@ class newsScrap :
         self.article_urls = []
         self.press_companies = []
         self.url_full = []
-        #수정 필요
-        self.tests = []
         
     def createNewsLinks(self):
         start_point = 1
@@ -44,8 +42,6 @@ class newsScrap :
                 
                     
     def newsDataScrap(self):
-        # 수정 필요
-        test = 0
         for url in self.article_urls:
             try:
                 web_news = requests.get(url, headers=self.headers).content
@@ -65,9 +61,6 @@ class newsScrap :
                 press_company = source_news.find('em', {'class':'media_end_linked_more_point'}).get_text()
                 
                 
-                test += 1
-                
-                self.tests.append(test)
                 self.titles.append(title)
                 self.dates.append(date)
                 self.articles.append(article)
@@ -88,25 +81,32 @@ class newsScrap :
         
         
     def dbUpdater(self):
-        config = {'user': 'admin_ytk',
-                'password': 'tN8VnV1aBuDNvcnPWKgU',
-                'host': 'database-ytk.ctkg5u6wqxe6.us-east-2.rds.amazonaws.com',
-                'database': 'NLP_G3',
-                'raise_on_warnings': True}
-        
-        cnn = pymysql.connect(host='database-ytk.ctkg5u6wqxe6.us-east-2.rds.amazonaws.com', 
-                              user='admin_ytk', password='tN8VnV1aBuDNvcnPWKgU',db='NLP_G3')
+        load_dotenv()
+
+        host=os.getenv("HOST")
+        user=os.getenv("USER_NAME")
+        password=os.getenv("PASSWORD")
+        database=os.getenv("DATABASE")
+
+        cnn = pymysql.connect(host=host, user=user, password=password, database=database )
         querys_data = []
         
         cur = cnn.cursor()
         
-        # 수정 필요 data 첫번째 idx 값 생성방식 고민 및 기업 id
+        selectQuery = 'SELECT enter_id FROM enterprise_data WHERE enter_name = %s'
+        
+        cur.execute(selectQuery, self.company)
+        
+        e_id = cur.fetchall()
+#         print(self.company)
+#         print(type(self.company))
+        
         #테이블에 맞춰 항목 추가 예정 
-        for i in range(5):
-            data = (self.tests[i], self.titles[i], self.articles[i], self.dates[i], 'ER01', self.article_urls[i])
+        for i in range(len(self.titles)):
+            data = (self.titles[i], self.articles[i], e_id[0][0], self.url_full[i])
             querys_data.append(data)
         
-        query = 'INSERT INTO news_data VALUES (%s, %s, %s, %s, %s, %s)'
+        query = 'INSERT INTO news_data(news_id, news_doc, enter_id, url) VALUES (%s, %s, %s, %s)'
         #query = "INSERT INTO test (name, City) VALUES (%s, %s)"
         
         for i in querys_data:
