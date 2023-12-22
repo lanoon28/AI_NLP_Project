@@ -7,9 +7,9 @@ import pandas as pd
 from datetime import datetime
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification, AdamW
-# import mysql.connector
 from dotenv import load_dotenv
 import os
+import time
 
 # .env 파일 로드
 load_dotenv()
@@ -27,22 +27,24 @@ conn = pymysql.connect(
 )
 
 cur = conn.cursor()
-cur.execute("SELECT news_doc FROM news_data")
+cur.execute("SELECT idx, news_doc FROM news_data")
 results = cur.fetchall()
 
 
 sentences = []
+idx_num = []
 # print(len(results))
 # print(results)
 for i in range(len(results)):
     # results[i]가 튜플인 경우에 문자열로 변환
-    text_to_process = str(results[i]) if isinstance(results[i], tuple) else results[i]
+    text_to_process = str(results[i][1]) if isinstance(results[i][1], tuple) else results[i][1]
     # split_sentences 함수 호출
     a = split_sentences(text_to_process)
     # print(f'{i+1}번째 문장. {a}')
     # for j in a:
     #     print(j)
     sentences.append(a)
+    idx_num.append(results[i][0])
 
 # a = 1
 # for b in sentences:
@@ -53,19 +55,24 @@ for i in range(len(results)):
 #         print()
 #         print(c)
 
-# print(sentences)
+# print(f'sentence:{sentences[:5]}')
+# test = list(sentences[1])
+# for j in range(len(test)):
+#     print(test[j])
 GB = PN_Ana(sentences)
-print(GB)
+# print(GB)
+# print(len(GB))
 
 for j in range(len(GB)):
     # 파라미터화된 쿼리를 사용하여 값 삽입
-    flo_est_value = float(GB[j])
-    rou_flo_est_value = round(flo_est_value,2)
+    if type(GB[j]) != 'string':
+        flo_est_value = float(GB[j])
+        rou_flo_est_value = round(flo_est_value,2)
     query = "UPDATE news_data SET estimate = %s WHERE idx = %s"
-    cur.execute(query, (rou_flo_est_value, j+1))
+    cur.execute(query, (rou_flo_est_value, idx_num[j]))
+    conn.commit()
 
-conn.commit()
 cur.close()
 conn.close()
-
+print('종료되었습니다.')
 # print(GB)
