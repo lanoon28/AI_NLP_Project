@@ -60,7 +60,6 @@ class newsScrap :
 
                 press_company = source_news.find('em', {'class':'media_end_linked_more_point'}).get_text()
                 
-                
                 self.titles.append(title)
                 self.dates.append(date)
                 self.articles.append(article)
@@ -88,7 +87,8 @@ class newsScrap :
         password=os.getenv("PASSWORD")
         database=os.getenv("DATABASE")
 
-        cnn = pymysql.connect(host=host, user=user, password=password, database=database )
+        cnn = pymysql.connect(host=host, user=user, password=password, database=database)
+        
         querys_data = []
         
         cur = cnn.cursor()
