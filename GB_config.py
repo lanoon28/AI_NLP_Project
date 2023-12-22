@@ -84,14 +84,18 @@ def PN_Ana(corpus):
         # print(f'부정 : {c}')
         # 코퍼스 전체에 대한 감정을 분석하고 출력합니다.
         if b + c < a * 0.5:
-            # print('중립적인 기사')
+            print('중립적인 기사')
             gb_list.append(0)
         elif b > c:
-            # print(f'긍정적인 기사: {b / (a + b + c) * 100}%')
+            print(f'긍정적인 기사: {b / (a + b + c) * 100}%')
+            if b+c == 0:
+                gb_list.append(0)
             PN_result = (b / (b + c))*100 - (c / (b + c)*100)
             gb_list.append(PN_result)
         else:
-            # print(f'부정적인 기사: {c / (a + b + c) * 100}%')
+            print(f'부정적인 기사: {c / (a + b + c) * 100}%')
+            if b+c == 0:
+                gb_list.append(0)
             PN_result = (b / (b + c))*100 - (c / (b + c)*100)
             gb_list.append(PN_result)
     return gb_list
