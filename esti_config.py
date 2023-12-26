@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 
-def process_and_update_data():
+def esti_config():
     # .env 파일 로드
     load_dotenv()
 
