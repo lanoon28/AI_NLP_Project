@@ -5,7 +5,7 @@ import pymysql
 from flask import jsonify
 from esti_config import esti_config, avg_comp_esti
 from newsScrap import newsScrap
-
+from datetime import date, datetime, timedelta
 # .env 파일 로드
 load_dotenv()
 
@@ -43,7 +43,29 @@ def esti_eve():
     avg_comp_esti()
     return jsonify(0)
 
-@app.route('/news/scrap/comp/<comp_name>', methods=['GET'])
+@app.route('/news/scrap/news/comp/<comp_name>', methods=['GET'])
+def news_comp(comp_name):
+    conn = pymysql.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+    cur = conn.cursor()
+    query1 = 'SELECT enter_id FROM enterprise_data WHERE enter_name = %s'
+    cur.execute(query1, (comp_name,))
+    # 현재 날짜 및 시간을 얻기
+    today = datetime.now()
+    # 어제의 날짜 계산
+    yesterday_time = today - timedelta(days=1)
+    yesterday = datetime.date(yesterday_time)
+    comp_id = cur.fetchall()
+    query2 = "SELECT news_id, news_doc, url FROM news_data WHERE enter_id = %s AND news_date=%s"
+    cur.execute(query2, (comp_id[0], yesterday,))
+    news_list = cur.fetchall()
+    return jsonify(news_list[:5])
+
+@app.route('/news/scrap/esti/comp/<comp_name>', methods=['GET'])
 def comp_esti(comp_name):
     conn = pymysql.connect(
         host=host,
@@ -59,7 +81,7 @@ def comp_esti(comp_name):
     conn.close()
     return jsonify(result[0])
 
-@app.route('/news/scrap/indus/<indus_name>', methods=['GET'])
+@app.route('/news/scrap/esti/indus/<indus_name>', methods=['GET'])
 def indus_esti(indus_name):
     conn = pymysql.connect(
         host=host,
