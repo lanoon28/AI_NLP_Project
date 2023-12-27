@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 import os
 
+# 기사별 긍정 부정 평가
 def esti_config():
     # .env 파일 로드
     load_dotenv()
@@ -58,6 +59,7 @@ def esti_config():
     conn.close()
     print('긍정부정 평가가 종료되었습니다.')
 
+# 기업별 긍정 부정 평가 DB에 추가
 def avg_comp_esti():
     # .env 파일 로드
     load_dotenv()

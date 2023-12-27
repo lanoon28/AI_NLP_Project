@@ -147,6 +147,10 @@ class newsScrap :
         for word, count in sorted_word_dic[:50]:
             print("{0}({1})".format(word, count), end=" ")
 
+    def auto(self):
+        self.createNewsLinks()
+        self.newsDataScrap()
+        self.dbUpdater()
 
 # test = newsScrap('롯데백화점')
 # test.createNewsLinks()
