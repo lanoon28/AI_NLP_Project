@@ -76,6 +76,8 @@ def avg_comp_esti():
         database=database
     )
     cur = conn.cursor()
+    # 현재 날짜 및 시간을 얻기
+    today = datetime.now()
     query = "SELECT enter_id FROM enterprise_data"
     cur.execute(query)
     comp_idx = cur.fetchall()
@@ -88,12 +90,17 @@ def avg_comp_esti():
         # cur.execute(query_name, (comp_id[0],))
         # comp_num = cur.fetchall()
         # print(comp_num)
-        query_num = "SELECT AVG(estimate) FROM news_data WHERE enter_id = %s"
-        cur.execute(query_num, (comp_id,))
+        query_num = "SELECT COALESCE(AVG(estimate), 0) FROM news_data WHERE enter_id = %s"
+        cur.execute(query_num, (comp_id))
         avg_esti_com = cur.fetchall()
-        print(f'({comp_id})의 긍정부정 평균 : {avg_esti_com[0][0]}')
-        query_yest = "UPDATE enterprise_data SET yeste_esti = avg_esti WHERE enter_id = %s"
-        cur.execute(query_yest, (comp_id,))
+        query_avg_yes = "SELECT devi_yes_avg FROM enterprise_data WHERE enter_id =%s"
+        cur.execute(query_avg_yes, (comp_id))
+        avg_esti_yes = cur.fetchall()
+        # print(f'오늘 평균{avg_esti_com[0][0]}')
+        # print(f'내일 평균{avg_esti_yes[0][0]}')
+        devi_yes = avg_esti_com[0][0] - avg_esti_yes[0][0]
+        query_devi = "UPDATE enterprise_data SET devi_yes_avg = %s WHERE enter_id = %s"
+        cur.execute(query_devi,(devi_yes, comp_id))
         query_avg = "UPDATE enterprise_data SET avg_esti = %s WHERE enter_id = %s"
         cur.execute(query_avg,(avg_esti_com, comp_id,))
         conn.commit()
@@ -104,4 +111,4 @@ def avg_comp_esti():
 
 # Call the function
 # esti_config()
-# avg_comp_esti()
+avg_comp_esti()
