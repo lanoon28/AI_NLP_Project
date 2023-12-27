@@ -36,11 +36,7 @@ def esti_eve():
         print(comp_names[i])
     for j in comp_names:
         today_Scrap = newsScrap(j)
-        today_Scrap.createNewsLinks()
-        today_Scrap.newsDataScrap()
-        today_Scrap.saveExcel()
-        today_Scrap.dbUpdater()
-        today_Scrap.keyWord()
+        today_Scrap.auto()
         
     esti_config()
     avg_comp_esti()
