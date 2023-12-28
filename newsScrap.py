@@ -99,21 +99,23 @@ class newsScrap :
         
         cur.execute(selectQuery, self.company)
         
-        e_id = cur.fetchall()
+        e_id = cur.fetchone()
 #         print(self.company)
 #         print(type(self.company))
         
         #테이블에 맞춰 항목 추가 예정 
         for i in range(len(self.titles)):
-            data = (self.titles[i], self.articles[i], e_id[0][0], self.url_full[i])
+            data = (self.titles[i], self.articles[i], e_id[0], self.url_full[i], self.dates[i])
             querys_data.append(data)
         
-        query = 'INSERT INTO news_data(news_id, news_doc, enter_id, url) VALUES (%s, %s, %s, %s)'
+        query = 'INSERT INTO news_data(news_id, news_doc, enter_id, url, news_date) VALUES (%s, %s, %s, %s, %s)'
         #query = "INSERT INTO test (name, City) VALUES (%s, %s)"
         
-        for i in querys_data:
-            cur.execute(query, i)
+        # for i in querys_data:
+        #     cur.execute(query, i)
         
+        cur.executemany(query, querys_data)
+
         cnn.commit()
         cur.close()
         cnn.close()
