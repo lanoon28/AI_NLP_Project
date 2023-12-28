@@ -73,7 +73,7 @@ def comp_esti(comp_name):
         database=database
     )
     cur = conn.cursor()
-    query = "SELECT avg_esti,(avg_esti-yeste_esti) FROM enterprise_data WHERE enter_name = %s"
+    query = "SELECT avg_esti,devi_yes_avg FROM enterprise_data WHERE enter_name = %s"
     cur.execute(query, (comp_name,))
     result = cur.fetchall()
     cur.close()
@@ -89,7 +89,7 @@ def indus_esti(indus_name):
         database=database
     )
     cur = conn.cursor()
-    query = "SELECT AVG(avg_esti),(AVG(avg_esti)-AVG(yeste_esti)) FROM enterprise_data WHERE enter_type = %s"
+    query = "SELECT AVG(avg_esti),AVG(devi_yes_avg) FROM enterprise_data WHERE enter_type = %s"
     cur.execute(query, (indus_name,))
     result = cur.fetchall()
     cur.close()
