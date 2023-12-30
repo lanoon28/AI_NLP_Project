@@ -24,8 +24,10 @@ class searchIssue :
         searchMaxQuery = 'SELECT * FROM enterprise_data WHERE devi_yes_avg = (SELECT MAX(devi_yes_avg) FROM enterprise_data)'
 
         cur.execute(searchMaxQuery)
-
-        hotEId = cur.fetchall()[0][0]
+        
+        company = list(cur.fetchall()[0])
+        
+        hotEId = company[0]
         #print(hotEId)
         
         findArticlesQuery = 'SELECT news_doc FROM news_data WHERE enter_id = %s'
@@ -36,10 +38,15 @@ class searchIssue :
         for i in range(len(findArticles)):
             articles.append(findArticles[i][0])
         
-        self.keyWord(articles)
+        key = self.keyWord(articles)
+        
+        company.append(key)
         
         cur.close()
         cnn.close()
+        
+        return company[1:]
+    
     
     
     def coldEnter(self):
@@ -52,8 +59,10 @@ class searchIssue :
         searchMaxQuery = 'SELECT * FROM enterprise_data WHERE devi_yes_avg = (SELECT MIN(devi_yes_avg) FROM enterprise_data)'
 
         cur.execute(searchMaxQuery)
-
-        coldEId = cur.fetchall()[0][0]
+        
+        company = list(cur.fetchall()[0])
+        
+        coldEId = company[0]
         #print(hotEId)
         
         findArticlesQuery = 'SELECT news_doc FROM news_data WHERE enter_id = %s'
@@ -64,10 +73,16 @@ class searchIssue :
         for i in range(len(findArticles)):
             articles.append(findArticles[i][0])
         
-        self.keyWord(articles)
+        key = self.keyWord(articles)
+        
+        company.append(key)
         
         cur.close()
         cnn.close()
+        
+        return company[1:]
+        
+        
         
     def keyWord(self,art):
         keyword_article = ''.join(art)
@@ -95,5 +110,4 @@ class searchIssue :
 
         sorted_word_dic = sorted(word_dic.items(), key=lambda x:x[1], reverse=True)[:5]
 
-        for word, count in sorted_word_dic:
-            print("{0}({1})".format(word, count), end=" ")
+        return sorted_word_dic

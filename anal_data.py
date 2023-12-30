@@ -5,6 +5,7 @@ import pymysql
 from flask import jsonify
 from esti_config import esti_config, avg_comp_esti
 from newsScrap import newsScrap
+from konlpy.tag import Okt
 from datetime import date, datetime, timedelta
 # .env 파일 로드
 load_dotenv()
@@ -37,7 +38,7 @@ def esti_eve():
     for j in comp_names:
         today_Scrap = newsScrap(j)
         today_Scrap.auto()
-        
+
     esti_config()
     avg_comp_esti()
     return jsonify(0)
@@ -96,6 +97,92 @@ def indus_esti(indus_name):
     conn.close()
     esti_result = result[0]
     return jsonify(esti_result)
+
+#급상승 기업
+@app.route('/news/hot', methods=['GET'])
+def indus_esti(indus_name):
+    conn = pymysql.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+    articles = []
+    cur = conn.cursor()
+    searchMaxQuery = 'SELECT * FROM enterprise_data WHERE devi_yes_avg = (SELECT MAX(devi_yes_avg) FROM enterprise_data)'
+    cur.execute(searchMaxQuery)
+    company = list(cur.fetchall()[0])
+    hotEId = company[0]  
+    findArticlesQuery = 'SELECT news_doc FROM news_data WHERE enter_id = %s'
+    cur.execute(findArticlesQuery,hotEId)
+    findArticles = cur.fetchall()
+        
+    for i in range(len(findArticles)):
+        articles.append(findArticles[i][0])
+        
+    key = keyWord(articles)  
+    company.append(key)
+    cur.close()
+    conn.close()
+
+    return jsonify(company[1:])
+
+# 급하락 기업
+@app.route('/news/cold', methods=['GET'])
+def indus_esti(indus_name):
+    conn = pymysql.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+    articles = []
+    cur = conn.cursor()
+    searchMaxQuery = 'SELECT * FROM enterprise_data WHERE devi_yes_avg = (SELECT MIN(devi_yes_avg) FROM enterprise_data)'
+    cur.execute(searchMaxQuery)
+    company = list(cur.fetchall()[0])
+    coldEId = company[0]
+    findArticlesQuery = 'SELECT news_doc FROM news_data WHERE enter_id = %s'
+    cur.execute(findArticlesQuery,coldEId)
+    findArticles = cur.fetchall()
+        
+    for i in range(len(findArticles)):
+        articles.append(findArticles[i][0])
+        
+    key = keyWord(articles)
+    company.append(key)
+    cur.close()
+    conn.close()
+
+    return jsonify(company[1:])
+
+# 급상승,하락 내부에 사용
+def keyWord(self,art):
+        keyword_article = ''.join(art)
+
+        tokenizer = Okt()
+        raw_pos_tagged = tokenizer.pos(keyword_article, norm=True, stem=True)
+        del_list = ['하다', '있다', '되다', '이다', '돼다', '않다', '그렇다', '아니다', '이렇다', '그렇다', '어떻다']
+
+        word_cleaned = []
+        for word in raw_pos_tagged:
+            if not word[1] in ["Josa", "Eomi", "Punctuation", "Foreign"]: # Foreign == ”, “ 와 같이 제외되어야할 항목들
+                if (len(word[0]) != 1) and (word[0] not in del_list): # 한 글자로 이뤄진 단어들을 제외 & 원치 않는 단어들을 제외
+            # 숫자나 이메일 형식의 단어 제외
+                    if not re.match(r'^[0-9]*$', word[0]) and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', word[0]):
+                        word_cleaned.append(word[0])
+
+        word_dic = {}
+
+        for word in word_cleaned:
+            if word not in word_dic:
+                word_dic[word] = 1 # changed from "0" to "1"
+            else:
+                word_dic[word] += 1
+
+        sorted_word_dic = sorted(word_dic.items(), key=lambda x:x[1], reverse=True)[:5]
+
+        return sorted_word_dic
 
 
 if __name__ == '__main__':
