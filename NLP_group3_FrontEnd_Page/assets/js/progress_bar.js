@@ -9,9 +9,12 @@
 
         // 백분율이 변할 때 프로그래스 바 업데이트 (예: 50%)
         var percentage = 0;
-        var targetPercentage = 50;
         var updateInterval = 50; // 업데이트 간격 (0.05초)
 
+        var targetPercentage = localStorage.getItem('progress_bar');
+        console.log('L : Value of key:', localStorage.getItem('progress_bar'));
+        console.log('T : Value of key:', targetPercentage);
+        
         function updateProgressBarWithPercentage() {
             if (percentage <= targetPercentage) {
                 updateProgressBar(percentage);
