@@ -818,6 +818,7 @@ form#search-form {
   text-align: center;
 }
 
+
 form#search-form select,
 form#search-form input {
   width: 100%;
@@ -868,7 +869,30 @@ form#search-form button i {
 }
 
 
+.rectangle_detail_text {
+  width: relative; /* 원하는 가로 크기로 조절 */
+  min-height: 100px; /* 원하는 세로 크기로 조절 */
+  background-color: white; /* 원하는 배경색으로 조절 */
+  padding: 20px; /* 내부 여백으로 텍스트를 간격 조절 */
+  border-radius: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 50px;
+}
 
+.rectangle_detail_text p {
+  margin: 0; /* 텍스트 주변의 기본 마진을 제거하여 꽉 찬 효과 */
+  margin-left: 20px;
+  font-size: 15px;
+  color: black; /* 원하는 텍스트 색상으로 조절 */
+}
+.rectangle_detail_text h3 {
+  font-weight: bold;
+  font-size: 30px;
+  margin: 0; /* 텍스트 주변의 기본 마진을 제거하여 꽉 찬 효과 */
+  margin-bottom: 10px;
+  color: rgb(19, 12, 119);
+}
 /*
 ---------------------------------------
 Popular Categories

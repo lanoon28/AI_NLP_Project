@@ -191,3 +191,13 @@ wow = new WOW(
   }
 );
 wow.init();
+
+
+function scrollToSection(sectionId) {
+  var section = document.getElementById(sectionId);
+  
+  if (section) {
+    // Element.scrollIntoView() 메서드를 사용하여 스무스한 스크롤링 수행
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+}
