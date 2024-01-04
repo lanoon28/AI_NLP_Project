@@ -10,6 +10,16 @@ from datetime import date, datetime, timedelta
 # .env 파일 로드
 load_dotenv()
 
+# CORS Error 대응
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+
+    return response
+
+
 host = os.getenv("HOST")
 user = os.getenv("USER_NAME")
 password = os.getenv("PASSWORD")
@@ -63,6 +73,8 @@ def news_comp(comp_name):
     query2 = "SELECT news_id, news_doc, url FROM news_data WHERE enter_id = %s AND news_date=%s"
     cur.execute(query2, (comp_id[0], yesterday,))
     news_list = cur.fetchall()
+    cur.close()
+    conn.close()
     return jsonify(news_list[:5])
 
 @app.route('/news/scrap/esti/comp/<comp_name>', methods=['GET'])
@@ -100,7 +112,7 @@ def indus_esti(indus_name):
 
 #급상승 기업
 @app.route('/news/hot', methods=['GET'])
-def indus_esti(indus_name):
+def indus_esti_hot(indus_name):
     conn = pymysql.connect(
         host=host,
         user=user,
@@ -129,7 +141,7 @@ def indus_esti(indus_name):
 
 # 급하락 기업
 @app.route('/news/cold', methods=['GET'])
-def indus_esti(indus_name):
+def indus_esti_cold(indus_name):
     conn = pymysql.connect(
         host=host,
         user=user,
